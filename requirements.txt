@@ -1,32 +1,52 @@
 # Liquid Audio Agent Python Dependencies
-# This file contains the required Python packages for the audio AI components
-# LFM2 (Local Frequency Matching 2) Integration
+# Official liquid-audio installation requirements
+# REQUIRES PYTHON 3.12+
+# Installation: pip install liquid-audio
+# Optional demo: pip install "liquid-audio[demo]"
+# Optional flash attention: pip install flash-attn --no-build-isolation
 
-# Core liquid-audio with LFM2 support (REQUIRES PYTHON 3.12+)
-liquid-audio>=1.0.0
+# Core liquid-audio package (automatically installs dependencies below)
+# This is the main package - install with: pip install liquid-audio
+liquid-audio
 
-# Attention optimization for GPU acceleration (LFM2 compatible)
-flash-attn>=2.6.3
+# Core dependencies (automatically installed with liquid-audio, listed for reference)
+# These are the exact versions required by liquid-audio
+accelerate>=1.10.1
+einops>=0.8.1
+librosa>=0.11.0
+sentencepiece>=0.2.1
+torch>=2.8.0
+torchaudio>=2.8.0
+transformers>=4.55.4
 
-# PyTorch with CUDA support (will be installed separately if needed)
-torch>=2.2.0
-torchvision>=0.17.0
-torchaudio>=2.2.0
+# Optional dependencies for demo functionality
+# Install with: pip install "liquid-audio[demo]"
+fastrtc[vad]>=0.0.30
 
-# Audio processing alternatives (if liquid-audio unavailable)
-librosa>=0.10.0
+# Optional Flash Attention 2 for improved performance
+# Install separately with: pip install flash-attn --no-build-isolation
+# Falls back to torch SDPA if not available
+flash-attn
+
+# Additional audio processing utilities (compatible with liquid-audio)
 soundfile>=0.12.0
 pydub>=0.25.0
 
-# Machine learning utilities
+# Machine learning utilities (compatible versions)
 numpy>=1.21.0
 scipy>=1.7.0
 
-# GPU acceleration alternatives (if flash-attn unavailable)
-xformers>=0.0.20
-efficient-attention>=1.0.0
-
-# Development and debugging
+# Development and debugging tools
 pytest>=7.0.0
 black>=23.0.0
 flake8>=6.0.0
+
+# GPU acceleration alternatives (if flash-attn compilation fails)
+xformers>=0.0.20
+
+# Installation Notes:
+# 1. Ensure Python 3.12+ is installed
+# 2. Install liquid-audio: pip install liquid-audio
+# 3. For demo functionality: pip install "liquid-audio[demo]"
+# 4. For Flash Attention 2: pip install flash-attn --no-build-isolation
+# 5. Requires low-latency capable hardware for real-time speech-to-speech

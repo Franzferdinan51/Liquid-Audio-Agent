@@ -1,0 +1,33 @@
+# Liquid Audio Agent Environment Configuration
+# Copy this to .env or .env.local and update as needed
+
+# Python Configuration (REQUIRED: >=3.12)
+PYTHON_VERSION=3.12+
+PYTHON_PATH=python3.12
+
+# CUDA Configuration (for flash-attn compilation)
+CUDA_HOME=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4
+CUDA_VISIBLE_DEVICES=0
+CUDA_VERSION=12.4
+
+# PyTorch Configuration
+TORCH_CUDA_ARCH_LIST="8.6"  # For RTX 3080, adjust for your GPU
+PYTORCH_VERSION=2.8.0+
+
+# liquid-audio Configuration
+LIQUID_AUDIO_VERSION=latest
+LIQUID_AUDIO_DEMO=false  # Set to true to install demo dependencies
+
+# flash-attn Configuration (optional)
+FLASH_ATTENTION_VERSION=latest
+FLASH_ATTENTION_ENABLED=false  # Set to true to install flash-attn
+
+# Development Settings
+DEBUG=false
+LOG_LEVEL=INFO
+VIRTUAL_ENV=false
+
+# Official Installation Commands Reference:
+# pip install liquid-audio
+# pip install "liquid-audio[demo]"  # optional demo dependencies
+# pip install flash-attn --no-build-isolation  # optional, requires CUDA

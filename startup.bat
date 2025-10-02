@@ -102,10 +102,11 @@ if errorlevel 1 goto :error
 if "%SKIP_PYTHON%"=="false" (
     goto :setup_python_environment
 ) else (
-    goto :main_continue
+    goto :start_n8n_section
 )
 
-:main_continue
+:start_n8n_section
+echo %INFO%Skipping Python environment setup...%RESET%
 :: Start N8N server
 if "%SKIP_N8N%"=="false" (
     call :start_n8n_server
@@ -228,7 +229,7 @@ if errorlevel 1 (
 echo.
 
 :continue_after_python
-goto :main_continue
+goto :start_n8n_section
 
 :start_n8n_server
 echo %INFO%Starting N8N server with CORS configuration...%RESET%

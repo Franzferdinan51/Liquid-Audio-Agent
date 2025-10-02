@@ -8,9 +8,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "install-python-deps": "node scripts/install-python-deps.js",
+    "install-mcp-deps": "pip install -r requirements-mcp.txt",
     "verify-python-setup": "python setup_automation.py",
-    "setup-all": "npm install && npm run install-python-deps",
-    "dev-full": "npm run setup-all && npm run dev"
+    "verify-mcp-setup": "python -c \"import liquid_audio, mcp; print('✅ MCP dependencies verified')\"",
+    "start-mcp-server": "python mcp-server.py",
+    "setup-all": "npm install && npm run install-python-deps && npm run install-mcp-deps",
+    "dev-full": "npm run setup-all && npm run dev",
+    "mcp-dev": "npm run install-mcp-deps && npm run start-mcp-server"
   },
   "dependencies": {
     "react": "^19.2.0",

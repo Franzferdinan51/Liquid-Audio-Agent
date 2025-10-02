@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  liquid-audio-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: liquid-audio-mcp-server
+    restart: unless-stopped
+    environment:
+      - LIQUID_AUDIO_MODEL_PATH=/app/models
+      - LIQUID_AUDIO_CACHE_DIR=/app/cache
+      - LIQUID_AUDIO_LOG_LEVEL=INFO
+      - LIQUID_AUDIO_DEVICE=cpu  # Use CPU in container
+    volumes:
+      - ./models:/app/models:rw
+      - ./cache:/app/cache:rw
+      - ./logs:/app/logs:rw
+      - ./input:/app/input:rw
+      - ./output:/app/output:rw
+    ports:
+      - "8080:8080"
+    networks:
+      - mcp-network
+
+  # Optional: Redis for caching (if needed)
+  redis:
+    image: redis:7-alpine
+    container_name: liquid-audio-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - mcp-network
+    profiles:
+      - cache
+
+volumes:
+  redis-data:
+
+networks:
+  mcp-network:
+    driver: bridge

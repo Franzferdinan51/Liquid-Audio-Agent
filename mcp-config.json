@@ -1,0 +1,335 @@
+{
+  "mcpServers": {
+    "liquid-audio": {
+      "command": "python",
+      "args": ["mcp-server.py"],
+      "env": {
+        "LIQUID_AUDIO_MODEL_PATH": "./models",
+        "LIQUID_AUDIO_CACHE_DIR": "./cache",
+        "LIQUID_AUDIO_LOG_LEVEL": "INFO"
+      },
+      "description": "Liquid Audio MCP Server for advanced audio processing with LFM2 technology",
+      "capabilities": [
+        "tools",
+        "resources"
+      ],
+      "tools": [
+        {
+          "name": "process_audio_file",
+          "description": "Process audio file with LFM2 enhancement",
+          "category": "audio_processing",
+          "parameters": {
+            "required": ["input_path", "output_path"],
+            "optional": ["enhancement_level", "noise_reduction", "voice_enhancement"]
+          }
+        },
+        {
+          "name": "analyze_audio_frequencies",
+          "description": "Analyze audio frequencies and patterns",
+          "category": "audio_analysis",
+          "parameters": {
+            "required": ["audio_path"],
+            "optional": ["analysis_type", "output_format"]
+          }
+        },
+        {
+          "name": "convert_audio_format",
+          "description": "Convert between audio formats",
+          "category": "audio_conversion",
+          "parameters": {
+            "required": ["input_path", "output_path"],
+            "optional": ["target_format", "sample_rate"]
+          }
+        },
+        {
+          "name": "start_microphone_recording",
+          "description": "Start recording from microphone",
+          "category": "realtime_audio",
+          "parameters": {
+            "required": [],
+            "optional": ["duration", "sample_rate", "channels"]
+          }
+        },
+        {
+          "name": "stop_microphone_recording",
+          "description": "Stop microphone recording and process audio",
+          "category": "realtime_audio",
+          "parameters": {
+            "required": ["output_path"],
+            "optional": ["apply_lfm2"]
+          }
+        },
+        {
+          "name": "monitor_audio_levels",
+          "description": "Monitor real-time audio levels",
+          "category": "realtime_audio",
+          "parameters": {
+            "required": [],
+            "optional": ["duration", "threshold"]
+          }
+        },
+        {
+          "name": "apply_lfm2_enhancement",
+          "description": "Apply Local Frequency Matching 2 processing",
+          "category": "lfm2_processing",
+          "parameters": {
+            "required": ["audio_path", "output_path"],
+            "optional": ["model_name", "enhancement_strength"]
+          }
+        },
+        {
+          "name": "voice_characteristic_analysis",
+          "description": "Analyze voice characteristics and patterns",
+          "category": "voice_analysis",
+          "parameters": {
+            "required": ["audio_path"],
+            "optional": ["analysis_depth"]
+          }
+        },
+        {
+          "name": "speech_to_speech_conversion",
+          "description": "Convert speech characteristics while preserving content",
+          "category": "voice_conversion",
+          "parameters": {
+            "required": ["input_path", "output_path"],
+            "optional": ["target_voice", "preserve_content"]
+          }
+        },
+        {
+          "name": "load_lfm2_model",
+          "description": "Load LFM2 model for processing",
+          "category": "model_management",
+          "parameters": {
+            "required": [],
+            "optional": ["model_name", "device", "precision"]
+          }
+        },
+        {
+          "name": "batch_process_audio",
+          "description": "Process multiple audio files in batch",
+          "category": "batch_processing",
+          "parameters": {
+            "required": ["input_directory", "output_directory"],
+            "optional": ["file_pattern", "processing_type"]
+          }
+        },
+        {
+          "name": "get_audio_info",
+          "description": "Get detailed information about audio file",
+          "category": "audio_info",
+          "parameters": {
+            "required": ["audio_path"],
+            "optional": ["include_technical", "include_analysis"]
+          }
+        }
+      ],
+      "settings": {
+        "model": {
+          "default_model": "LiquidAI/LFM2-Audio-1.5B",
+          "auto_load": true,
+          "cache_models": true,
+          "preferred_device": "auto"
+        },
+        "audio": {
+          "default_sample_rate": 44100,
+          "default_channels": 1,
+          "supported_formats": ["wav", "mp3", "flac", "ogg"],
+          "max_file_size": "100MB",
+          "temp_dir": "./temp"
+        },
+        "processing": {
+          "default_enhancement_level": 1.0,
+          "default_noise_reduction": true,
+          "default_voice_enhancement": true,
+          "batch_size": 1,
+          "parallel_processing": false
+        },
+        "realtime": {
+          "buffer_size": 1024,
+          "latency_target": 50,
+          "auto_gain_control": true,
+          "voice_activity_detection": true
+        }
+      },
+      "dependencies": {
+        "python": ">=3.8",
+        "liquid-audio": ">=1.0.0",
+        "numpy": ">=1.21.0",
+        "soundfile": ">=0.10.0",
+        "sounddevice": ">=0.4.0",
+        "scipy": ">=1.7.0",
+        "mcp": ">=1.0.0"
+      },
+      "installation": {
+        "pip_packages": [
+          "liquid-audio",
+          "numpy",
+          "soundfile",
+          "sounddevice",
+          "scipy",
+          "mcp"
+        ],
+        "optional_packages": [
+          "torch>=2.0.0",
+          "torchaudio>=2.0.0",
+          "matplotlib>=3.5.0"
+        ]
+      },
+      "configuration": {
+        "environment_variables": {
+          "LIQUID_AUDIO_MODEL_PATH": {
+            "description": "Path to store downloaded LFM2 models",
+            "default": "./models",
+            "type": "directory"
+          },
+          "LIQUID_AUDIO_CACHE_DIR": {
+            "description": "Directory for caching processed audio",
+            "default": "./cache",
+            "type": "directory"
+          },
+          "LIQUID_AUDIO_LOG_LEVEL": {
+            "description": "Logging level for the server",
+            "default": "INFO",
+            "type": "string",
+            "options": ["DEBUG", "INFO", "WARNING", "ERROR"]
+          },
+          "LIQUID_AUDIO_DEVICE": {
+            "description": "Preferred audio device for processing",
+            "default": "auto",
+            "type": "string",
+            "options": ["auto", "cpu", "cuda"]
+          }
+        },
+        "file_structure": {
+          "models/": "Downloaded LFM2 models",
+          "cache/": "Processed audio cache",
+          "temp/": "Temporary audio files",
+          "logs/": "Log files",
+          "config/": "Configuration files"
+        }
+      },
+      "usage_examples": {
+        "basic_processing": {
+          "description": "Basic audio file processing",
+          "tools": ["process_audio_file"],
+          "example": {
+            "tool": "process_audio_file",
+            "arguments": {
+              "input_path": "./input/audio.wav",
+              "output_path": "./output/enhanced_audio.wav",
+              "enhancement_level": 1.2,
+              "noise_reduction": true,
+              "voice_enhancement": true
+            }
+          }
+        },
+        "realtime_recording": {
+          "description": "Record and process audio in real-time",
+          "tools": ["start_microphone_recording", "stop_microphone_recording"],
+          "example": [
+            {
+              "tool": "start_microphone_recording",
+              "arguments": {
+                "duration": 5.0,
+                "sample_rate": 44100,
+                "channels": 1
+              }
+            },
+            {
+              "tool": "stop_microphone_recording",
+              "arguments": {
+                "output_path": "./output/recorded_audio.wav",
+                "apply_lfm2": true
+              }
+            }
+          ]
+        },
+        "voice_analysis": {
+          "description": "Analyze voice characteristics",
+          "tools": ["voice_characteristic_analysis"],
+          "example": {
+            "tool": "voice_characteristic_analysis",
+            "arguments": {
+              "audio_path": "./input/speech.wav",
+              "analysis_depth": "comprehensive"
+            }
+          }
+        },
+        "batch_processing": {
+          "description": "Process multiple files at once",
+          "tools": ["batch_process_audio"],
+          "example": {
+            "tool": "batch_process_audio",
+            "arguments": {
+              "input_directory": "./input/",
+              "output_directory": "./output/",
+              "file_pattern": "*.wav",
+              "processing_type": "lfm2"
+            }
+          }
+        }
+      },
+      "troubleshooting": {
+        "common_issues": {
+          "model_loading_failed": {
+            "description": "LFM2 model fails to load",
+            "solutions": [
+              "Check internet connection for model download",
+              "Ensure sufficient disk space in model directory",
+              "Verify liquid-audio installation",
+              "Check CUDA availability for GPU models"
+            ]
+          },
+          "audio_device_error": {
+            "description": "Audio device access issues",
+            "solutions": [
+              "Check microphone permissions",
+              "Verify audio device is not in use",
+              "Restart audio system",
+              "Try different sample rate or channels"
+            ]
+          },
+          "memory_error": {
+            "description": "Out of memory during processing",
+            "solutions": [
+              "Reduce batch size",
+              "Use CPU instead of GPU if limited VRAM",
+              "Process shorter audio segments",
+              "Close other memory-intensive applications"
+            ]
+          }
+        }
+      },
+      "api_reference": {
+        "endpoints": {
+          "process_audio_file": {
+            "method": "POST",
+            "path": "/tools/call",
+            "body": {
+              "name": "process_audio_file",
+              "arguments": {
+                "input_path": "string",
+                "output_path": "string",
+                "enhancement_level": "number (0.1-2.0)",
+                "noise_reduction": "boolean",
+                "voice_enhancement": "boolean"
+              }
+            }
+          },
+          "analyze_audio_frequencies": {
+            "method": "POST",
+            "path": "/tools/call",
+            "body": {
+              "name": "analyze_audio_frequencies",
+              "arguments": {
+                "audio_path": "string",
+                "analysis_type": "string (spectral|temporal|mfcc|all)",
+                "output_format": "string (json|text)"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
