@@ -232,23 +232,28 @@ echo.
 goto :start_n8n_section
 
 :start_n8n_server
-echo %INFO%Starting N8N server with CORS configuration...%RESET%
+echo %INFO%Starting N8N server with comprehensive CORS configuration...%RESET%
 
-:: Set CORS environment variables
+:: Set comprehensive CORS environment variables
+set N8N_CORS_ORIGIN=*
 set N8N_CORS_ALLOW_ORIGIN=*
 set N8N_CORS_CREDENTIALS=true
 set N8N_CORS_METHODS=GET,POST,PUT,DELETE,OPTIONS,PATCH
-set N8N_CORS_HEADERS=Content-Type,Authorization,X-Requested-With,n8n-api-key
+set N8N_CORS_HEADERS=Content-Type,Authorization,X-Requested-With,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since
+
+:: Additional n8n settings
 set N8N_HOST=%N8N_HOST%
 set N8N_PORT=%N8N_PORT%
 set N8N_WEBHOOK_URL=%WEBHOOK_URL%
 set GENERIC_TIMEZONE=America/New_York
+set N8N_BASIC_AUTH_ACTIVE=false
+set N8N_EDITOR_BASE_URL=http://localhost:%N8N_PORT%
 
 :: Start N8N in background
 if "%HEADLESS%"=="true" (
-    start "N8N Server" /min cmd /c "npx n8n start"
+    start "N8N Server" /min cmd /c "npx n8n start -o"
 ) else (
-    start "N8N Server" cmd /c "npx n8n start"
+    start "N8N Server" cmd /c "npx n8n start -o"
 )
 
 :: Wait for N8N to start
