@@ -1,0 +1,7 @@
+{
+  "name": "Liquid Audio Agent",
+  "description": "An agentic voice assistant and chat interface simulating an integration of Liquid Audio, LM Studio, Memento, and LangChain, powered by Gemini.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
