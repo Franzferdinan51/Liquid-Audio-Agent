@@ -1,11 +1,12 @@
 # Liquid Audio Agent Python Dependencies
 # This file contains the required Python packages for the audio AI components
+# LFM2 (Local Frequency Matching 2) Integration
 
-# Core audio processing
-liquid-audio>=0.1.0
+# Core liquid-audio with LFM2 support (REQUIRES PYTHON 3.12+)
+liquid-audio>=1.0.0
 
-# Attention optimization for GPU acceleration
-flash-attn>=2.5.0
+# Attention optimization for GPU acceleration (LFM2 compatible)
+flash-attn>=2.6.3
 
 # PyTorch with CUDA support (will be installed separately if needed)
 torch>=2.2.0

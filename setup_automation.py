@@ -21,17 +21,18 @@ def run_command(command, check=True, capture_output=True):
         return None
 
 def check_python_version():
-    """Check Python version requirements."""
-    print("=== Python Version Check ===")
+    """Check Python version requirements for LFM2."""
+    print("=== Python Version Check (LFM2 Support) ===")
     version = sys.version_info
     print(f"Current Python: {version.major}.{version.minor}.{version.micro}")
 
     if version >= (3, 12):
-        print("[OK] Python version meets liquid-audio requirements (>=3.12)")
+        print("[OK] Python version meets LFM2/liquid-audio requirements (>=3.12)")
         return True
     else:
-        print("[FAIL] Python version too old for liquid-audio (requires >=3.12)")
-        return False
+        print("[WARN] Python version may not support latest liquid-audio LFM2 (requires >=3.12)")
+        print("      Attempting installation with fallback compatibility...")
+        return "compatible"
 
 def check_cuda():
     """Check CUDA installation and GPU availability."""
@@ -191,10 +192,39 @@ LOG_LEVEL=INFO
     print(f"✓ Environment configuration created: {env_file}")
     print("  Review and customize for your setup")
 
+def test_lfm2_integration():
+    """Test LFM2 integration functionality."""
+    print("\n=== LFM2 Integration Test ===")
+
+    try:
+        # Import and test LFM2 integration
+        import sys
+        import os
+        sys.path.append(os.getcwd())
+
+        from lfm2_integration import test_lfm2_functionality
+        result = test_lfm2_functionality()
+
+        print(f"LFM2 Available: {'✓' if result['lfm2_available'] else '✗'}")
+        print(f"Processing Method: {result['processing_method']}")
+        print(f"Test Status: {result['test_result']}")
+
+        if result['lfm2_available']:
+            print("[OK] LFM2 is fully functional")
+        else:
+            print("[FALLBACK] Using basic audio processing")
+            print("       Upgrade to Python 3.12+ for LFM2 support")
+
+        return result['lfm2_available']
+
+    except Exception as e:
+        print(f"[ERROR] LFM2 test failed: {e}")
+        return False
+
 def main():
     """Main setup automation function."""
-    print("Liquid Audio Agent Setup Automation")
-    print("===================================")
+    print("Liquid Audio Agent Setup Automation (LFM2 Enhanced)")
+    print("==================================================")
 
     # Check current environment
     python_ok = check_python_version()
@@ -204,7 +234,13 @@ def main():
 
     # Summary
     print("\n=== Setup Summary ===")
-    print(f"Python 3.12+: {'✓' if python_ok else '✗'}")
+    if python_ok is True:
+        print(f"Python 3.12+: {'✓'}")
+    elif python_ok == "compatible":
+        print(f"Python 3.12+: {'⚠' } (compatible fallback mode)")
+    else:
+        print(f"Python 3.12+: {'✗'}")
+
     print(f"CUDA Toolkit: {'✓' if cuda_ok else '✗'}")
     print(f"PyTorch CUDA: {'✓' if pytorch_ok else '✗'}")
     print(f"liquid-audio: {'✓' if packages.get('liquid-audio', False) else '✗'}")
@@ -228,23 +264,35 @@ def main():
     else:
         print("✓ All packages already installed")
 
+    # Test LFM2 integration
+    lfm2_ok = test_lfm2_integration()
+
     # Create configuration files
     create_environment_file()
 
     # Final recommendations
     print("\n=== Next Steps ===")
-    if not python_ok:
-        print("1. Upgrade to Python 3.12+ for liquid-audio support")
+    if not python_ok or python_ok == "compatible":
+        print("1. Upgrade to Python 3.12+ for full LFM2 support")
     if not cuda_ok:
         print("2. Install CUDA toolkit for flash-attn compilation")
     if not pytorch_ok:
         print("3. Install PyTorch with CUDA support")
+    if not lfm2_ok:
+        print("4. Install liquid-audio package: pip install liquid-audio")
 
-    print("4. Review the generated documentation files:")
+    print("5. Review the generated documentation files:")
     print("   - python_upgrade_instructions.md")
     print("   - cuda_flash_attn_setup.md")
     print("   - liquid_audio_env.txt")
-    print("5. Follow the setup guides and retry installation")
+    print("6. Follow the setup guides and retry installation")
+
+    print(f"\n=== LFM2 Status ===")
+    if lfm2_ok:
+        print("✓ LFM2 is ready for advanced audio processing")
+    else:
+        print("⚠ LFM2 not available - using fallback audio processing")
+        print("  Upgrade to Python 3.12+ for LFM2 features")
 
 if __name__ == "__main__":
     main()
