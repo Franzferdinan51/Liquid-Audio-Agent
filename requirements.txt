@@ -1,0 +1,31 @@
+# Liquid Audio Agent Python Dependencies
+# This file contains the required Python packages for the audio AI components
+
+# Core audio processing
+liquid-audio>=0.1.0
+
+# Attention optimization for GPU acceleration
+flash-attn>=2.5.0
+
+# PyTorch with CUDA support (will be installed separately if needed)
+torch>=2.2.0
+torchvision>=0.17.0
+torchaudio>=2.2.0
+
+# Audio processing alternatives (if liquid-audio unavailable)
+librosa>=0.10.0
+soundfile>=0.12.0
+pydub>=0.25.0
+
+# Machine learning utilities
+numpy>=1.21.0
+scipy>=1.7.0
+
+# GPU acceleration alternatives (if flash-attn unavailable)
+xformers>=0.0.20
+efficient-attention>=1.0.0
+
+# Development and debugging
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
