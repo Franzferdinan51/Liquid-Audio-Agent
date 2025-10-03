@@ -16,11 +16,13 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ name, status = 'conne
 interface HeaderProps {
     llmStatus: ConnectionStatus;
     n8nStatus: ConnectionStatus;
+    liquidAudioStatus: ConnectionStatus;
+    webhookStatus: ConnectionStatus;
     provider: LLMProvider;
     onOpenSettings: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ llmStatus, n8nStatus, provider, onOpenSettings }) => {
+export const Header: React.FC<HeaderProps> = ({ llmStatus, n8nStatus, liquidAudioStatus, webhookStatus, provider, onOpenSettings }) => {
     return (
         <header className="border-b border-white/10 bg-black/40 backdrop-blur-lg p-5 mb-7 rounded-2xl flex justify-between items-center">
             <div className="flex items-center gap-4">
@@ -35,7 +37,9 @@ export const Header: React.FC<HeaderProps> = ({ llmStatus, n8nStatus, provider, 
             <div className="flex items-center gap-4">
                 <div className="hidden md:flex items-center gap-5">
                     <StatusIndicator name="LLM Provider" status={llmStatus} />
+                    <StatusIndicator name="Liquid Audio" status={liquidAudioStatus} />
                     <StatusIndicator name="N8N" status={n8nStatus} />
+                    <StatusIndicator name="N8N Webhook" status={webhookStatus} />
                     <StatusIndicator name="LangGraph" />
                 </div>
                  <button 

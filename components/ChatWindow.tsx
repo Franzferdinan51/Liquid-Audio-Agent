@@ -7,7 +7,8 @@ interface ChatWindowProps {
     isProcessing: boolean;
     isListening: boolean;
     setIsListening: React.Dispatch<React.SetStateAction<boolean>>;
-    onSendMessage: (content: string) => void;
+    isAssistantSpeaking: boolean;
+    onSendMessage: (content: string, isFromVoice?: boolean) => void;
 }
 
 const TypingIndicator: React.FC = () => (
@@ -25,6 +26,16 @@ const TypingIndicator: React.FC = () => (
 
 const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
     const isAssistant = message.role === 'assistant';
+
+    if (message.role === 'system') {
+        return (
+            <div className="self-center text-center text-sm text-purple-300 w-full max-w-2xl mx-auto my-2">
+                <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-3" dangerouslySetInnerHTML={{ __html: message.content }}></div>
+                <div className="mt-1.5 text-xs text-gray-500">{message.time}</div>
+            </div>
+        )
+    }
+
     return (
         <div className={`flex items-start gap-5 max-w-[90%] ${isAssistant ? 'self-start' : 'self-end flex-row-reverse'}`}>
             <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-2xl ${isAssistant ? 'bg-gradient-to-br from-red-600 to-orange-900' : 'bg-gradient-to-br from-cyan-500 to-blue-500'}`}>
@@ -55,10 +66,39 @@ const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
     );
 };
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ messages, selectedModelName, isProcessing, isListening, setIsListening, onSendMessage }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({ messages, selectedModelName, isProcessing, isListening, setIsListening, isAssistantSpeaking, onSendMessage }) => {
     const [inputValue, setInputValue] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const recognitionRef = useRef<any>(null); // Using 'any' for SpeechRecognition for cross-browser compatibility
+
+    useEffect(() => {
+        // FIX: Cast window to `any` to access non-standard `SpeechRecognition` properties.
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.warn("Speech recognition not supported by this browser.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event: any) => {
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                }
+            }
+            if (finalTranscript) {
+                 setInputValue(prev => prev + finalTranscript);
+            }
+        };
+        
+        recognitionRef.current = recognition;
+    }, []);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -75,22 +115,37 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages, selectedModelN
     }, [inputValue]);
 
     const handleSend = () => {
-        onSendMessage(inputValue);
-        setInputValue('');
+        if (inputValue.trim()) {
+            onSendMessage(inputValue);
+            setInputValue('');
+        }
     };
 
     const handleMicClick = () => {
-        setIsListening(prev => !prev);
-        if(!isListening) {
-             setTimeout(() => {
-                const voiceInputs = [
-                    "Execute a full LangGraph workflow with Liquid Audio processing and Memento memory integration",
-                    "Process this through the stateful agent pipeline using all integrated systems",
-                    "Run the complete 7-step LangGraph workflow with LM Studio model selection",
-                ];
-                setInputValue(voiceInputs[Math.floor(Math.random() * voiceInputs.length)]);
+        const recognition = recognitionRef.current;
+        if (!recognition) {
+            alert("Speech recognition is not supported on your browser.");
+            return;
+        }
+    
+        if (isListening) {
+            recognition.stop();
+            setIsListening(false);
+            if (inputValue.trim()) {
+                onSendMessage(inputValue, true);
+                setInputValue('');
+            }
+        } else {
+            setInputValue('');
+            recognition.start();
+            setIsListening(true);
+            recognition.onend = () => {
                 setIsListening(false);
-            }, 3000);
+                if (inputValue.trim()) {
+                    onSendMessage(inputValue, true);
+                    setInputValue('');
+                }
+            };
         }
     };
     
@@ -114,7 +169,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages, selectedModelN
             </div>
             <div className="p-5 border-t border-white/10">
                 <div className="flex gap-5 items-end">
-                    <button onClick={handleMicClick} className={`mic-btn flex-shrink-0 w-16 h-16 rounded-full text-2xl text-white transition-all duration-200 flex items-center justify-center shadow-lg ${isListening ? 'listening bg-gradient-to-br from-red-500 to-orange-500 shadow-red-500/40' : 'bg-gradient-to-br from-red-600 to-orange-900 shadow-red-600/40'}`}>
+                    <button onClick={handleMicClick} disabled={isProcessing || isAssistantSpeaking} className={`mic-btn flex-shrink-0 w-16 h-16 rounded-full text-2xl text-white transition-all duration-200 flex items-center justify-center shadow-lg ${isListening ? 'listening bg-gradient-to-br from-red-500 to-orange-500 shadow-red-500/40' : 'bg-gradient-to-br from-red-600 to-orange-900 shadow-red-600/40'} disabled:opacity-50 disabled:cursor-not-allowed`}>
                         <i className={`fas ${isListening ? 'fa-microphone-slash' : 'fa-microphone'}`}></i>
                     </button>
                     <div className="relative flex-1">
@@ -124,18 +179,19 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ messages, selectedModelN
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                             placeholder="Speak or type... LangGraph will manage the stateful workflow..."
-                            className="w-full min-h-[64px] max-h-[150px] p-4 pr-16 rounded-3xl border border-white/20 bg-white/10 text-white placeholder-white/50 focus:border-red-600 focus:bg-white/15 outline-none resize-none"
+                            className="w-full min-h-[64px] max-h-[150px] p-4 pr-16 rounded-3xl border border-white/20 bg-white/10 text-white placeholder-white/50 focus:border-red-600 focus:bg-white/15 outline-none resize-none disabled:opacity-50"
                             rows={1}
-                            disabled={isProcessing}
+                            disabled={isProcessing || isAssistantSpeaking || isListening}
                         />
-                        <button onClick={handleSend} className="absolute right-4 bottom-4 w-11 h-11 rounded-full bg-gradient-to-br from-red-600 to-orange-900 text-white flex items-center justify-center" disabled={isProcessing || !inputValue.trim()}>
+                        <button onClick={handleSend} className="absolute right-4 bottom-4 w-11 h-11 rounded-full bg-gradient-to-br from-red-600 to-orange-900 text-white flex items-center justify-center disabled:opacity-50" disabled={isProcessing || isAssistantSpeaking || !inputValue.trim()}>
                             <i className="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </div>
-                 {isListening && (
+                 {(isListening || isAssistantSpeaking) && (
                     <div className="text-center text-red-500 text-base mt-3.5 font-semibold animate-pulse">
-                        <i className="fas fa-wave-square"></i> Listening with Liquid Audio & LangGraph State...
+                        <i className="fas fa-wave-square"></i> 
+                        {isListening ? ' Listening with Liquid Audio...' : ' Assistant is speaking...'}
                     </div>
                 )}
             </div>

@@ -6,7 +6,7 @@ export interface LangGraphStep {
 }
 
 export interface Message {
-    role: 'user' | 'assistant' | 'tool';
+    role: 'user' | 'assistant' | 'tool' | 'system';
     content: string;
     time: string;
     tools?: string[];
@@ -54,4 +54,6 @@ export interface ConnectionSettings {
     n8nUrl: string;
     n8nApiKey: string;
     workflows: N8NWorkflow[];
+    liquidAudioUrl: string;
+    webhookUrl: string;
 }

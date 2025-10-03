@@ -11,6 +11,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave, c
     const [settings, setSettings] = useState<ConnectionSettings>(currentSettings);
     const [llmTestStatus, setLlmTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
     const [n8nTestStatus, setN8nTestStatus] = useState<'idle' | 'testing' | 'success' | { error: string }>('idle');
+    const [liquidAudioTestStatus, setLiquidAudioTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
     const [manualWorkflows, setManualWorkflows] = useState('');
 
     const handleProviderChange = (provider: LLMProvider) => {
@@ -33,6 +34,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave, c
                 setLlmTestStatus('error');
             }
             setTimeout(() => setLlmTestStatus('idle'), 2000);
+        }, 1500);
+    };
+
+    const handleTestLiquidAudioConnection = () => {
+        setLiquidAudioTestStatus('testing');
+        setTimeout(() => {
+            if (settings.liquidAudioUrl) {
+                setLiquidAudioTestStatus('success');
+            } else {
+                setLiquidAudioTestStatus('error');
+            }
+            setTimeout(() => setLiquidAudioTestStatus('idle'), 2000);
         }, 1500);
     };
 
@@ -80,6 +93,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave, c
         setManualWorkflows('');
         setN8nTestStatus('success');
         setTimeout(() => setN8nTestStatus('idle'), 2000);
+    };
+
+    const handleGenerateWebhook = () => {
+        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+        setSettings(s => ({ ...s, webhookUrl: `https://webhook.site/${uuid}` }));
     };
 
     const renderTestButton = (status: 'idle' | 'testing' | 'success' | 'error' | { error: string }) => {
@@ -143,6 +164,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave, c
                             </div>
                         )}
                     </div>
+                    {/* Liquid Audio Section */}
+                    <div className="p-4 bg-black/20 rounded-lg space-y-4 border border-white/10">
+                        <h3 className="font-semibold text-red-300 text-lg">Liquid Audio</h3>
+                        <div>
+                            <label htmlFor="liquidAudioUrl" className="block text-sm font-medium text-gray-300 mb-2">llama.cpp Server URL</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="liquidAudioUrl"
+                                    value={settings.liquidAudioUrl}
+                                    onChange={e => setSettings(s => ({ ...s, liquidAudioUrl: e.target.value }))}
+                                    className="w-full bg-black/40 border border-white/20 rounded-lg p-2.5 pr-24 focus:border-red-500 outline-none"
+                                    placeholder="http://localhost:8081/v1/audio/speech"
+                                />
+                                <button onClick={handleTestLiquidAudioConnection} className="absolute right-1 top-1 bottom-1 px-3 bg-white/10 rounded-md hover:bg-white/20 text-xs font-semibold flex items-center gap-2">
+                                    Test {renderTestButton(liquidAudioTestStatus)}
+                                </button>
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-400 mt-2 p-2 bg-black/30 rounded-md">
+                            <i className="fas fa-info-circle mr-1.5"></i>
+                            Required for local voice generation. Point this to your llama.cpp server's TTS endpoint.
+                        </div>
+                    </div>
                     {/* N8N Automation Section */}
                     <div className="p-4 bg-black/20 rounded-lg space-y-4 border border-white/10">
                         <h3 className="font-semibold text-sky-300 text-lg">N8N Automation</h3>
@@ -163,6 +208,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave, c
                              <>
                                 <div className="text-xs text-red-300 p-3 bg-red-500/10 rounded-md mt-2 border border-red-500/20">
                                     <strong>Connection Failed:</strong> {n8nTestStatus.error}
+                                    <br/><br/>
+                                    This is likely a CORS issue. Please see the note at the bottom of this section on how to configure your N8N server.
+                                    <br/>
+                                    <strong>As an alternative, you can add your workflows manually below.</strong>
                                 </div>
                                 <div className="mt-4">
                                     <label htmlFor="manualWorkflows" className="block text-sm font-medium text-gray-300 mb-2">Manual Workflow Entry</label>
@@ -193,6 +242,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onSave, c
                             <i className="fas fa-info-circle mr-1.5"></i>
                             <strong>Note:</strong> For this to work, your N8N instance must have CORS configured. You can do this by setting the environment variable 
                             <code className="bg-stone-700 p-1 rounded mx-1 text-white text-[11px]">N8N_CORS_ALLOW_ORIGIN=*</code> on your N8N server.
+                        </div>
+                    </div>
+
+                    {/* N8N Webhook Section */}
+                    <div className="p-4 bg-black/20 rounded-lg space-y-4 border border-white/10">
+                        <h3 className="font-semibold text-purple-300 text-lg">N8N Webhook Listener</h3>
+                        <div>
+                            <label htmlFor="webhookUrl" className="block text-sm font-medium text-gray-300 mb-2">Webhook URL</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="webhookUrl"
+                                    value={settings.webhookUrl}
+                                    onChange={e => setSettings(s => ({ ...s, webhookUrl: e.target.value }))}
+                                    className="w-full bg-black/40 border border-white/20 rounded-lg p-2.5 focus:border-purple-500 outline-none"
+                                    placeholder="Generate or paste a webhook.site URL"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button onClick={handleGenerateWebhook} className="w-full px-3 py-2 bg-purple-600/50 rounded-md hover:bg-purple-600/70 text-xs font-semibold text-white">
+                                Generate New URL
+                            </button>
+                            <button onClick={() => navigator.clipboard.writeText(settings.webhookUrl)} disabled={!settings.webhookUrl} className="w-full px-3 py-2 bg-white/10 rounded-md hover:bg-white/20 text-xs font-semibold text-white disabled:opacity-50">
+                                Copy URL
+                            </button>
+                        </div>
+                        {settings.webhookUrl.includes('webhook.site') && (
+                            <a href={settings.webhookUrl.replace(/webhook.site\/(.*)/, "https://webhook.site/#!/view/$1")} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-300 hover:underline text-center block">
+                                Open inspector in new tab <i className="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        )}
+                        <div className="text-xs text-gray-400 mt-2 p-2 bg-black/30 rounded-md">
+                            <i className="fas fa-info-circle mr-1.5"></i>
+                            Use this URL in an N8N 'Webhook' node to send real-time events to this app. Powered by webhook.site for demonstration.
                         </div>
                     </div>
                 </div>
